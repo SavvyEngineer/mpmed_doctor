@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "555033368815",
+    "project_id": "mizpezeshk-doctor",
+    "storage_bucket": "mizpezeshk-doctor.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555033368815:android:1e428235fccc951498e31a",
+        "android_client_info": {
+          "package_name": "ir.mpmed.app.doctor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555033368815-gct46uguvc42n10168sqj31dlag9978m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUz8B6_HVfP57SRbEpqAvGSPuDkjhG7C4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555033368815-gct46uguvc42n10168sqj31dlag9978m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
