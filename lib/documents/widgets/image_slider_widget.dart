@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:mpmed_doctor/documents/provider/documents_provider.dart';
@@ -8,14 +9,22 @@ class image_slider_widget extends StatelessWidget {
       {Key? key,
       required this.id,
       required this.mediaData,
+      this.height = 190,
+      this.width = 130,
+      this.autoPlay = true,
       this.changeDirection = Axis.horizontal,
-      this.imageScale = BoxFit.fill})
+      this.imageScale = BoxFit.fill,
+      this.is_full_screen = false})
       : super(key: key);
 
   final int id;
+  final double height;
+  final double width;
   final List<DocumentMedia> mediaData;
   final Axis changeDirection;
   final BoxFit imageScale;
+  final bool autoPlay;
+  final bool is_full_screen;
 
   @override
   Widget build(BuildContext context) {
@@ -27,17 +36,17 @@ class image_slider_widget extends StatelessWidget {
     });
     return Container(
         margin: EdgeInsets.only(left: 1, right: 10),
-        height: 190,
-        width: 130,
+        height: height,
+        width: width,
         child: CarouselSlider.builder(
           itemCount: mediaLink.length,
           options: CarouselOptions(
-            height: 170,
+            height: height - 20,
             viewportFraction: 0.8,
             initialPage: 0,
             enableInfiniteScroll: true,
             reverse: false,
-            autoPlay: true,
+            autoPlay: autoPlay,
             autoPlayInterval: Duration(seconds: 3),
             autoPlayAnimationDuration: Duration(milliseconds: 800),
             autoPlayCurve: Curves.fastOutSlowIn,
@@ -49,19 +58,24 @@ class image_slider_widget extends StatelessWidget {
               (BuildContext context, int itemIndex, int pageViewIndex) =>
                   Container(
             child: Container(
-              height: 200,
+              height: height + 10,
               width: double.infinity,
               child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: PhotoView(
-                    imageProvider: NetworkImage(
-                      mediaLink[itemIndex],
-                    ),
-                    minScale: PhotoViewComputedScale.contained * 0.8,
-                    maxScale: PhotoViewComputedScale.covered * 1.8,
-                    initialScale: PhotoViewComputedScale.covered,
-                    basePosition: Alignment.center,
-                  )),
+                  child: is_full_screen
+                      ? PhotoView(
+                          imageProvider:
+                              CachedNetworkImageProvider(mediaLink[itemIndex]))
+                      : CachedNetworkImage(
+                          imageUrl: mediaLink[itemIndex],
+                          fit: BoxFit.cover,
+                          progressIndicatorBuilder:
+                              (context, url, downloadProgress) =>
+                                  CircularProgressIndicator(
+                                      value: downloadProgress.progress),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                        )),
             ),
           ),
         ));

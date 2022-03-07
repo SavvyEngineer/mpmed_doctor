@@ -54,14 +54,26 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future getImagefromcamera() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    var image = await ImagePicker.platform.getImage(
+      source: ImageSource.camera,
+      maxWidth: null,
+      maxHeight: null,
+      imageQuality: null,
+      preferredCameraDevice: CameraDevice.rear,
+    ) as File;
     setState(() {
       _image = image;
     });
   }
 
   Future getImagefromGallery() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker.platform.getImage(
+      source: ImageSource.gallery,
+      maxWidth: null,
+      maxHeight: null,
+      imageQuality: null,
+      preferredCameraDevice: CameraDevice.rear,
+    ) as File;
     setState(() {
       _image = image;
     });
@@ -170,7 +182,6 @@ class _SignUpPageState extends State<SignUpPage> {
                       child: Center(
                         child: new Form(
                           key: _formKey,
-                          autovalidate: _validate,
                           child: _getFormUI(),
                         ),
                       ),

@@ -18,8 +18,8 @@ Rect pathGradientRect = new Rect.fromCircle(
 
 Gradient gradient = new LinearGradient(
   colors: <Color>[
-    Color.fromRGBO(225, 89, 89, 1).withOpacity(1),
-    Color.fromRGBO(255, 128, 16, 1).withOpacity(1),
+    Color.fromRGBO(221, 221, 221, 1).withOpacity(1),
+    Color.fromRGBO(245, 245, 245,1).withOpacity(1),
   ],
   stops: [
     0.3,
@@ -31,7 +31,7 @@ path.lineTo(-size.width / 1.4, 0);
 path.quadraticBezierTo(
     size.width / 2, size.height * 2, size.width + size.width / 1.4, 0);
 
-paint.color = Colors.deepOrange;
+paint.color = Color(0xFFc4c4c4);
 paint.shader = gradient.createShader(pathGradientRect);
 paint.strokeWidth = 40;
 path.close();
@@ -47,7 +47,7 @@ Rect secondOvalRect = new Rect.fromPoints(
 gradient = new LinearGradient(
   colors: <Color>[
     Color.fromRGBO(225, 255, 255, 1).withOpacity(0.1),
-    Color.fromRGBO(255, 206, 31, 1).withOpacity(0.2),
+    Color.fromRGBO(172, 172, 172, 1).withOpacity(0.2),
   ],
   stops: [
     0.0,
@@ -55,7 +55,7 @@ gradient = new LinearGradient(
   ],
 );
 Paint secondOvalPaint = Paint()
-  ..color = Colors.deepOrange
+  ..color = Color(0xFFdddddd)
   ..shader = gradient.createShader(secondOvalRect);
 
 canvas.drawOval(secondOvalRect, secondOvalPaint);
@@ -69,7 +69,7 @@ Rect thirdOvalRect = new Rect.fromPoints(
 gradient = new LinearGradient(
   colors: <Color>[
     Color.fromRGBO(225, 255, 255, 1).withOpacity(0.05),
-    Color.fromRGBO(255, 196, 21, 1).withOpacity(0.2),
+    Color.fromRGBO(147, 147, 147, 1).withOpacity(0.2),
   ],
   stops: [
     0.0,
@@ -77,7 +77,7 @@ gradient = new LinearGradient(
   ],
 );
 Paint thirdOvalPaint = Paint()
-  ..color = Colors.deepOrange
+  ..color = Color(0xFFf5f5f5)
   ..shader = gradient.createShader(thirdOvalRect);
 
 canvas.drawOval(thirdOvalRect, thirdOvalPaint);
@@ -90,8 +90,8 @@ Rect fourthOvalRect = new Rect.fromPoints(
 
 gradient = new LinearGradient(
   colors: <Color>[
-    Colors.red.withOpacity(0.9),
-    Color.fromRGBO(255, 128, 16, 1).withOpacity(0.3),
+    Colors.white.withOpacity(0.9),
+    Color.fromRGBO(147, 147, 147, 1).withOpacity(0.3),
   ],
   stops: [
     0.3,
@@ -99,7 +99,7 @@ gradient = new LinearGradient(
   ],
 );
 Paint fourthOvalPaint = Paint()
-  ..color = Colors.deepOrange
+  ..color = Color(0xFFf5f5f5)
   ..shader = gradient.createShader(fourthOvalRect);
 
   canvas.drawOval(fourthOvalRect, fourthOvalPaint);

@@ -18,11 +18,7 @@ import 'package:mpmed_doctor/questions/screen/users_list_screen.dart';
 import 'package:mpmed_doctor/widgets/app_drawer.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-Future _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-}
 
 class MyHomePage extends StatefulWidget {
   static const String routeName = '/home_screen';
@@ -32,34 +28,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _isInit = true;
-  late FirebaseMessaging _messaging;
-  late int _totalNotifications;
-  PushNotification? _notificationInfo;
   final _advancedDrawerController = AdvancedDrawerController();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  @override
-  void initState() {
-    _totalNotifications = 0;
-    registerNotification();
-    checkForInitialMessage();
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      PushNotification notification = PushNotification(
-        title: message.notification?.title,
-        body: message.notification?.body,
-      );
-
-      setState(() {
-        _notificationInfo = notification;
-        _totalNotifications++;
-      });
-    });
-    checkForInitialMessage();
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -67,85 +40,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   if (_isInit) {
-  //     _messaging = FirebaseMessaging.instance;
-  //     _messaging.getToken().then((value) async {
-  //       await Provider.of<LoginStore>(context, listen: false)
-  //           .setUpNotifToken(value!);
-  //     });
-  //   }
-  //   _isInit = false;
-  //   super.didChangeDependencies();
-  // }
-
-  checkForInitialMessage() async {
-    await Firebase.initializeApp();
-    _messaging.getToken().then((value) => print(value));
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
-
-    if (initialMessage != null) {
-      Map<String, dynamic> map = initialMessage!.data;
-      PushNotification notification = PushNotification(
-        title: map['title'],
-        body: map['body'],
-      );
-      setState(() {
-        _notificationInfo = notification;
-        _totalNotifications++;
-      });
-    }
-  }
-
-  void registerNotification() async {
-    // 1. Initialize the Firebase app
-    await Firebase.initializeApp();
-
-    // 2. Instantiate Firebase Messaging
-    _messaging = FirebaseMessaging.instance;
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // 3. On iOS, this helps to take the user permissions
-    NotificationSettings settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      provisional: false,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-
-      // For handling the received notifications
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        // Parse the message received
-        Map<String, dynamic> map = message.data;
-        PushNotification notification = PushNotification(
-          title: map['title'],
-          body: map['body'],
-        );
-        setState(() {
-          _notificationInfo = notification;
-          _totalNotifications++;
-        });
-        if (_notificationInfo != null) {
-          // For displaying the notification as an overlay
-          showSimpleNotification(
-            Text(_notificationInfo!.title!),
-            leading: NotificationBadge(totalNotifications: _totalNotifications),
-            subtitle: Text(_notificationInfo!.body!),
-            background: Colors.cyan.shade700,
-            duration: Duration(seconds: 2),
-          );
-        }
-      });
-    } else {
-      print('User declined or has not accepted permission');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,54 +81,30 @@ class _MyHomePageState extends State<MyHomePage> {
                   SizedBox(
                     height: 30,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Card(
-                        semanticContainer: true,
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: SizedBox(
-                            width: MediaQuery.of(context).size.width / 2 - 20,
-                            height: MediaQuery.of(context).size.height / 5,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/img/online_chat.png'),
-                                      fit: BoxFit.cover)),
-                            )),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        elevation: 5,
-                        margin: EdgeInsets.all(10),
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context)
+                          .pushNamed(UsersListQuestions.routeName);
+                    },
+                    child: Card(
+                      semanticContainer: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      child: SizedBox(
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height / 4,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/img/one_ques.png'),
+                                    fit: BoxFit.cover)),
+                          )),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context)
-                              .pushNamed(UsersListQuestions.routeName);
-                        },
-                        child: Card(
-                          semanticContainer: true,
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          child: SizedBox(
-                              width: MediaQuery.of(context).size.width / 2 - 20,
-                              height: MediaQuery.of(context).size.height / 5,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                            'assets/img/one_ques.png'),
-                                        fit: BoxFit.cover)),
-                              )),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          elevation: 5,
-                          margin: EdgeInsets.all(10),
-                        ),
-                      ),
-                    ],
+                      elevation: 5,
+                      margin: EdgeInsets.all(10),
+                    ),
                   ),
                   InkWell(
                     onTap: () {

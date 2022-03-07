@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:glass_kit/glass_kit.dart';
 import 'package:mpmed_doctor/documents/provider/documents_provider.dart';
@@ -11,8 +10,9 @@ class DocumenetItem extends StatelessWidget {
   final String reason;
   final String doctor_name;
   final String date;
+  final String patient_id;
 
-  DocumenetItem(this.id, this.reason, this.doctor_name, this.date);
+  DocumenetItem(this.id, this.reason, this.doctor_name, this.date,this.patient_id);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class DocumenetItem extends StatelessWidget {
         onTap: () {
           Navigator.of(context).pushNamed(
             DocumentItemScreen.routeName,
-            arguments: {'itemId': id},
+            arguments: {'itemId': id,'patient_id':patient_id,'page_index':0},
           );
         },
         child: Stack(
@@ -38,29 +38,30 @@ class DocumenetItem extends StatelessWidget {
             Positioned(
               child: GlassContainer(
                 isFrostedGlass: true,
-        frostedOpacity: 0.05,
-        blur: 20,
-        elevation: 15,
-        gradient: LinearGradient(
-          colors: [
-            Colors.white.withOpacity(0.25),
-            Colors.white.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderGradient: LinearGradient(
-          colors: [
-            Colors.white.withOpacity(0.60),
-            Colors.white.withOpacity(0.0),
-            Colors.white.withOpacity(0.0),
-            Colors.white.withOpacity(0.60),
-          ],
-          stops: [0.0, 0.45, 0.55, 1.0],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(25.0),
+                frostedOpacity: 0.05,
+                borderColor: Colors.transparent,
+                blur: 20,
+                elevation: 15,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.25),
+                    Colors.white.withOpacity(0.05),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderGradient: LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.60),
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.60),
+                  ],
+                  stops: [0.0, 0.45, 0.55, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(25.0),
                 height: 130,
                 width: mediaQuery.size.width,
                 child: Container(
@@ -70,11 +71,12 @@ class DocumenetItem extends StatelessWidget {
                     children: [
                       FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(
-                          reason,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700,color: Colors.white)
-                        ),
+                        child: Text(reason,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
                       ),
                       SizedBox(
                         height: 30,
@@ -82,15 +84,26 @@ class DocumenetItem extends StatelessWidget {
                       SizedBox(
                         width: 180,
                         child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                          children: [FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(doctor_name,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700,color: Colors.white),
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                doctor_name,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white),
+                              ),
                             ),
-                          ), Text(date,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400,color: Colors.white),)],
+                            Text(
+                              date,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white),
+                            )
+                          ],
                         ),
                       )
                     ],

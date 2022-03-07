@@ -77,7 +77,7 @@ class UniversalRoundedAppBar extends StatelessWidget
                     width: MediaQuery.of(context).size.width,
                     height: height,
                     child: CustomPaint(
-                      painter: CustomToolbarShape(lineColor: Colors.deepOrange),
+                      painter: CustomToolbarShape(lineColor: Colors.white),
                     )),
                 Align(
                     alignment: Alignment(0.0, 1.25),

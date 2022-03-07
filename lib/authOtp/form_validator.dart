@@ -2,7 +2,7 @@
 class FormValidator {
   static late FormValidator _instance;
  
-  factory FormValidator() => _instance ??= new FormValidator._();
+  factory FormValidator() => _instance;
  
   FormValidator._();
  

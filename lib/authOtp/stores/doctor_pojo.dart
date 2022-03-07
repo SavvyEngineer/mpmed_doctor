@@ -13,8 +13,8 @@ class Profile {
   String? wcity;
   String? wstate;
   String? nationalCode;
-  int? isApproved;
-  int? usedMdApp;
+  bool? isApproved;
+  bool? usedMdApp;
   String? profilePic;
   String? notifToken;
 
@@ -48,7 +48,7 @@ class Profile {
     apikey = json['apikey'];
     status = json['status'];
     createdAt = json['created_at'];
-    lastName = json['lastName'];
+    lastName = json['lastname'];
     fatherName = json['fatherName'];
     birthDate = json['birthDate'];
     wcity = json['wcity'];

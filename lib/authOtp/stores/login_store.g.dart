@@ -143,15 +143,6 @@ mixin _$LoginStore on LoginStoreBase, Store {
     return _$signOutAsyncAction.run(() => super.signOut(context));
   }
 
-  final _$setUpNotifTokenAsyncAction =
-      AsyncAction('LoginStoreBase.setUpNotifToken');
-
-  @override
-  Future<void> setUpNotifToken(String _notifToken) {
-    return _$setUpNotifTokenAsyncAction
-        .run(() => super.setUpNotifToken(_notifToken));
-  }
-
   @override
   String toString() {
     return '''

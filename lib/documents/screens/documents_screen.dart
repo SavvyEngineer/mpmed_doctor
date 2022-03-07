@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:mpmed_doctor/appbar/universal_app_bar.dart';
 import 'package:mpmed_doctor/documents/provider/documents_provider.dart';
 import 'package:mpmed_doctor/documents/widgets/document_item.dart';
+import 'package:mpmed_doctor/notification/notification_bloc.dart';
 import 'package:mpmed_doctor/widgets/app_drawer.dart';
 import 'package:provider/provider.dart';
 
@@ -22,18 +25,35 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   String userId = '';
   String doctorNtcode = '';
 
+  late Stream<LocalNotification> _notificationsStream;
+
   final _advancedDrawerController = AdvancedDrawerController();
   GlobalKey<ScaffoldState> _documentsListscaffoldKey =
       GlobalKey<ScaffoldState>();
 
   @override
+  void initState() {
+    _notificationsStream = NotificationsBloc.instance.notificationsStream;
+    _notificationsStream.listen((notification) {
+      fetchDataFromServer();
+    });
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isInit) {
-      Map map =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      userId = map['userId'];
-      doctorNtcode = map['doctorNtcode'];
+      Map recivedData;
+      final arguments = ModalRoute.of(context)!.settings.arguments;
+      if (arguments.runtimeType.toString() !=
+          '_InternalLinkedHashMap<String, dynamic>') {
+        recivedData = json.decode(arguments.toString());
+      } else {
+        recivedData = arguments as Map;
+      }
+      userId = recivedData['userId'];
+      doctorNtcode = recivedData['doctorNtcode'];
       _documentsListFuture = fetchDataFromServer();
     }
     _isInit = false;
@@ -271,6 +291,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                                                 .getDocumentsFilteredByUsers(
                                                     userId)[i]
                                                 .date,
+                                            userId,
                                           ),
                                         ),
                                       ),

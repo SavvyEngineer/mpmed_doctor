@@ -45,25 +45,9 @@ class DocumentMedia {
       this.media_id, this.doc_id, this.doc_url, this.doc_name, this.doc_type);
 }
 
-class Review {
-  int reviewId;
-  String content;
-  String time;
-  int doctorAnswer;
-  int userAnswer;
-
-  Review(
-      {required this.reviewId,
-      required this.content,
-      required this.time,
-      required this.doctorAnswer,
-      required this.userAnswer});
-}
-
 class DocumentsProvider with ChangeNotifier {
   List<Document> _documents = [];
   List<DocumentMedia> _documentsMedia = [];
-  List<Review> _reviewList = [];
   List<Document> _userBasedDocuments = [];
   List<Document> _filteredByUser = [];
 
@@ -97,10 +81,6 @@ class DocumentsProvider with ChangeNotifier {
 
   List<DocumentMedia> get getDocumentsMedia {
     return [..._documentsMedia];
-  }
-
-  List<Review> get getReviews {
-    return [..._reviewList];
   }
 
   void runFilter(String enteredKeyword) {
@@ -152,46 +132,44 @@ class DocumentsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchAndSetReviews(String doc_ntCode, String document_id) async {
-    final Uri url =
-        Uri.parse('https://mpmed.ir/review_app/v1/api.php?apicall=getreview');
-    List<dynamic> recivedData;
-    _reviewList = [];
+  // Future<void> fetchAndSetReviews(String doc_ntCode, String document_id) async {
+  //   final Uri url = Uri.parse(
+  //       'https://api.mpmed.ir/public/index.php/app/general/review-document/get/doctor/$document_id/$doc_ntCode/');
+  //   List<dynamic> recivedData;
+  //   _reviewList = [];
 
-    Map map = new Map();
-    map['document_id'] = document_id;
-    map['doctor_nt_code'] = doc_ntCode;
+  //   try {
+  //     final response = await http.get(url);
+  //     recivedData = json.decode(response.body);
+  //     // print(map['document_id'].toString());
+  //      print(response.body.toString());
 
-    try {
-      final response = await http.post(url, body: map);
-      recivedData = json.decode(response.body);
-      // print(map['document_id'].toString());
-      // print(response.body.toString());
-
-      for (var i = 0; i < recivedData.length; i++) {
-        _reviewList.add(Review(
-            reviewId: recivedData[i]["review_id"],
-            content: recivedData[i]["content"],
-            time: recivedData[i]["time"],
-            doctorAnswer: recivedData[i]["doctor_answer"],
-            userAnswer: recivedData[i]["user_answer"]));
-      }
-      notifyListeners();
-    } catch (e) {
-      print(e.toString());
-    }
-  }
+  //     for (var i = 0; i < recivedData.length; i++) {
+  //       _reviewList.add(Review(
+  //           reviewId: recivedData[i]['review_id'],
+  //           content: recivedData[i]['content'],
+  //           time: recivedData[i]['time'],
+  //           doctorId: recivedData[i]['doctor_id'],
+  //           doctorAnswer: recivedData[i]['doctor_answer'],
+  //           userAnswer: recivedData[i]['user_answer']));
+  //     }
+  //     notifyListeners();
+  //   } catch (e) {
+  //     print('Error while fetching review ${e.toString()}');
+  //   }
+  // }
 
   Future<void> fetchAndSetDocuments(String doctorNtcode) async {
     _documents = [];
     _userBasedDocuments = [];
     final Uri url = Uri.parse(
-        'https://mpmed.ir/access_app/v1/api.php?apicall=getaccesstable&doc_nt_code=$doctorNtcode');
+        'https://api.mpmed.ir/public/index.php/app/doctor/access/get/$doctorNtcode');
 
     try {
       final response = await http.get(url);
+      print(response.body.toString());
 
-      List<dynamic> recivedData = json.decode(response.body);
+      List<dynamic> recivedData = json.decode(response.body) as List;
 
       for (var i = 0; i < recivedData.length; i++) {
         await _getAccessedDocuments(recivedData[i]["accessed_doc"].toString());
@@ -203,11 +181,11 @@ class DocumentsProvider with ChangeNotifier {
 
   Future<void> _getAccessedDocuments(String docId) async {
     final Uri url = Uri.parse(
-        'https://mpmed.ir/mp_app/v1/api.php?apicall=getdocbydocid&docid=$docId');
+        'https://api.mpmed.ir/public/index.php/app/general/document/get/id/$docId');
     List<dynamic> recivedData;
 
     try {
-      final response = await http.post(url);
+      final response = await http.get(url);
       recivedData = json.decode(response.body);
 
       for (var i = 0; i < recivedData.length; i++) {
@@ -271,11 +249,11 @@ class DocumentsProvider with ChangeNotifier {
 
   Future<void> _getDocumentsMedia(String docId) async {
     final Uri url = Uri.parse(
-        'https://mpmed.ir/mp_app/v1/api.php?apicall=getdocmedia&doc_id=$docId');
+        'https://api.mpmed.ir/public/index.php/app/general/document/media/get/id/$docId');
     List<dynamic> recivedData;
 
     try {
-      final response = await http.post(url);
+      final response = await http.get(url);
       recivedData = json.decode(response.body);
 
       for (var i = 0; i < recivedData.length; i++) {
@@ -295,44 +273,44 @@ class DocumentsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> createReview(
-      String docId, String message, String doctor_nt_code) async {
-    final Uri url = Uri.parse(
-        'https://mpmed.ir/review_app/v1/api.php?apicall=createreview');
+  // Future<void> createReview(
+  //     String docId, String message, String doctor_nt_code) async {
+  //   final Uri url = Uri.parse(
+  //       'https://mpmed.ir/review_app/v1/api.php?apicall=createreview');
 
-    try {
-      Map<String, dynamic> map = new Map();
+  //   try {
+  //     Map<String, dynamic> map = new Map();
 
-      map['document_id'] = docId;
-      map['content'] = message;
-      map['time'] = DateTime.now().millisecondsSinceEpoch.toString();
-      map['doctor_id'] = doctor_nt_code;
-      map['doctor_answer'] = "1";
-      map['user_answer'] = "0";
+  //     map['document_id'] = docId;
+  //     map['content'] = message;
+  //     map['time'] = DateTime.now().millisecondsSinceEpoch.toString();
+  //     map['doctor_id'] = doctor_nt_code;
+  //     map['doctor_answer'] = "1";
+  //     map['user_answer'] = "0";
 
-      final response = await http.post(url, body: map);
-      Map recivedData = json.decode(response.body);
+  //     final response = await http.post(url, body: map);
+  //     Map recivedData = json.decode(response.body);
 
-      if (recivedData['error'] == false) {
-        fetchAndSetReviews(doctor_nt_code, docId);
-        // isGettingPatientReportLoading = false;
-        // getReportsByUserId(userId);
-        // _showSnackBar(Colors.green, 'report deleted successfully',
-        //     patientReportScaffoldKey);
-      } else {
-        // isGettingPatientReportLoading = false;
-        // _showSnackBar(
-        //     Colors.red, 'Something went wrong', patientReportScaffoldKey);
-      }
-      if (response.statusCode! >= 400) {
-        // isGettingPatientReportLoading = false;
-        // _showSnackBar(
-        //     Colors.red, 'Something went wrong', patientReportScaffoldKey);
-      } else {
-        // isGettingPatientReportLoading = false;
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
+  //     if (recivedData['error'] == false) {
+  //       fetchAndSetReviews(doctor_nt_code, docId);
+  //       // isGettingPatientReportLoading = false;
+  //       // getReportsByUserId(userId);
+  //       // _showSnackBar(Colors.green, 'report deleted successfully',
+  //       //     patientReportScaffoldKey);
+  //     } else {
+  //       // isGettingPatientReportLoading = false;
+  //       // _showSnackBar(
+  //       //     Colors.red, 'Something went wrong', patientReportScaffoldKey);
+  //     }
+  //     if (response.statusCode! >= 400) {
+  //       // isGettingPatientReportLoading = false;
+  //       // _showSnackBar(
+  //       //     Colors.red, 'Something went wrong', patientReportScaffoldKey);
+  //     } else {
+  //       // isGettingPatientReportLoading = false;
+  //     }
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
 }

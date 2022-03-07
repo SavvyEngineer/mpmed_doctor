@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:localstorage/localstorage.dart';
+import 'package:mpmed_doctor/notification/notification_bloc.dart';
+import 'package:mpmed_doctor/notification/provider/notif_provider.dart';
 import 'package:mpmed_doctor/questions/providers/question_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +23,9 @@ class QuestionItemScreenState extends State<QuestionItemScreen> {
   String? user_refId;
   String? userFullName;
   String? userBirthDate;
+  String? notifToken;
+
+  late Stream<LocalNotification> _notificationsStream;
 
   bool _isInit = true;
 
@@ -32,14 +39,33 @@ class QuestionItemScreenState extends State<QuestionItemScreen> {
     // map.forEach((key, value) {
     //   print('key=$key---value=$value');
     // });
-    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
-    user_refId = arguments['user_ref_id'];
-    userFullName = arguments['user_full_name'];
-    userBirthDate = arguments['user_birth_date'];
+    final arguments = ModalRoute.of(context)!.settings.arguments;
+
+    Map recivedData;
+
+    if (arguments.runtimeType.toString() != '_InternalLinkedHashMap<String, String?>') {
+      recivedData = json.decode(arguments.toString());
+    } else {
+      recivedData = arguments as Map;
+    }
+
+    user_refId = recivedData['user_ref_id'];
+    userFullName = recivedData['user_full_name'];
+    userBirthDate = recivedData['user_birth_date'];
+    notifToken = recivedData['notif_token'];
     _questionsListFuture = _obtainDoctorsListFuture();
     _user = types.User(
       id: userData['national_code'].toString(),
     );
+  }
+
+  @override
+  void initState() {
+    _notificationsStream = NotificationsBloc.instance.notificationsStream;
+    _notificationsStream.listen((notification) {
+      _obtainDoctorsListFuture();
+    });
+    super.initState();
   }
 
   @override
@@ -104,8 +130,16 @@ class QuestionItemScreenState extends State<QuestionItemScreen> {
     _addMessage(textMessage);
     await Provider.of<QuestionsProviders>(context, listen: false)
         .createReview(user_refId.toString(), message.text.toString(),
-            userData['national_code'])
-        .then((value) {
+            userData['national_code'], StringId.toString())
+        .then((value) async {
+      await Provider.of<NotifProvider>(context, listen: false)
+          .sendNotificationToPatient(notifToken.toString(), 'پاسخ جدید',
+              'پزشک ${userData['name']} ${userData['lastName']} متخصص ${userData['specialty']} برای سوال شما پاسخی ارسال کرده اند ',"question_screen",{
+                'user_ref_id':userData['national_code'],
+                'user_full_name':'${userData['name']} ${userData['lastName']}',
+                'user_speciality':userData['specialty'],
+                'notif_token':userData['notif_token'],
+              });
       _messages.remove(textMessage);
 
       var updatedTextMessage = types.TextMessage(
@@ -147,8 +181,16 @@ class QuestionItemScreenState extends State<QuestionItemScreen> {
                                 child: Icon(Icons.arrow_back)),
                           ),
                         )),
-                    Text(userFullName.toString(),style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700,color: Colors.white)),
-                    Text(userBirthDate.toString(),style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400,color: Colors.black))
+                    Text(userFullName.toString(),
+                        style: TextStyle(
+                            fontSize: 21,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
+                    Text(userBirthDate.toString(),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black))
                   ],
                 ),
               ),

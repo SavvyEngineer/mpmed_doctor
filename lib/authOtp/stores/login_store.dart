@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:mpmed_doctor/authOtp/pages/sign_up_page.dart';
 import 'package:mpmed_doctor/authOtp/stores/doctor_pojo.dart';
+import 'package:mpmed_doctor/notification/provider/notif_provider.dart';
 import 'package:mpmed_doctor/screens/home_screen.dart';
+import 'package:provider/provider.dart';
 import '../pages/otp_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -189,7 +192,7 @@ abstract class LoginStoreBase with Store {
         }
 
         print(response.data.toString());
-        
+
         Map recivedData = json.decode(response.data);
         if (recivedData['error'] == false) {
           isSignUpLoading = false;
@@ -257,7 +260,7 @@ abstract class LoginStoreBase with Store {
         print(responseData.toString());
         if (responseData['error'] != true) {
           print('Authentication successful');
-           onAuthenticationSuccessful(context, responseData['profile']);
+          onAuthenticationSuccessful(context, responseData['profile']);
         }
       });
 
@@ -300,7 +303,7 @@ abstract class LoginStoreBase with Store {
 
   Future<void> onAuthenticationSuccessful(
       BuildContext context, Map<String, dynamic> result) async {
-   late FirebaseMessaging messaging;
+    late FirebaseMessaging messaging;
     isLoginLoading = true;
     isOtpLoading = true;
 
@@ -311,11 +314,12 @@ abstract class LoginStoreBase with Store {
     // prefs.setString('userData', json.encode(result));
     await storage.ready;
     storage.setItem('profile', result);
-
-        messaging = FirebaseMessaging.instance;
-       await messaging.getToken().then((value) async {
-        await setUpNotifToken(value!);
-      });
+    await Firebase.initializeApp();
+    messaging = FirebaseMessaging.instance;
+    await messaging.getToken().then((value) async {
+      await Provider.of<NotifProvider>(context, listen: false)
+          .registerToken(value!, result['national_code']);
+    });
 
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => MyHomePage()),
@@ -330,41 +334,5 @@ abstract class LoginStoreBase with Store {
     // await _auth.signOut();
     // await Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const LoginPage()), (Route<dynamic> route) => false);
     // firebaseUser = null;
-  }
-
-  @action
-  Future<void> setUpNotifToken(String _notifToken) async {
-    Map<String, dynamic> data = storage.getItem('profile');
-    final doctor = Profile.fromJson(data);
-
-    print(doctor.notifToken);
-    print(doctor.nationalCode);
-
-    final url = 'https://mpmed.ir:8801/api/v2/tokens';
-
-    print(_notifToken.toString());
-
-    try {
-      final response = await http.post(Uri.parse(url), body: {
-        "device": "fcm",
-        "token": _notifToken,
-        "channel": "default"
-      }, headers: {
-        "X-AN-APP-NAME": "mizepezeskdoctor",
-        "X-AN-APP-KEY": "6ac0b9fb979e35e366b5056d3f5e41e8"
-      }).catchError((error) {
-        print(error.toString());
-      }).then((value) => print('respnse data ${value.statusCode}'));
-      // final responseData = json.decode(response.body);
-      // print('respnse data ${responseData.toString()}');
-      // print('respnse data ${response.statusCode}');
-
-      // if (response.statusCode >= 400) {
-      //   print(response.statusCode.toString());
-      //   return;
-      // }
-    } catch (e) {
-      print(e.toString());
-    }
   }
 }
